@@ -1,4 +1,4 @@
-from thefuzz import process, fuzz
+from thefuzz import fuzz
 
 
 def deduplication(
@@ -25,7 +25,10 @@ def deduplication(
     return cleaned_dict_plus, total_points
 
 
-def deduplication_plus(raw_dict, uniq):
+def deduplication_plus(
+    raw_dict: dict,
+    uniq: int
+    ):
      
     cleaned_dict_plus = dict()
     total_points = 0
@@ -46,7 +49,10 @@ def deduplication_plus(raw_dict, uniq):
     return cleaned_dict_plus, total_points
 
 
-def fuzzy_cleaning(raw_dict, uniq):
+def fuzzy_cleaning(
+    raw_dict: dict,
+    uniq: int
+    ):
 
     cleaned_dict = dict()
     total_points = 0

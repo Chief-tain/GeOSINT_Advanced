@@ -1,10 +1,5 @@
-import asyncio
-from urllib.parse import parse_qs
-
-from aiogram import F, Router, types, Bot, html
-from aiogram.filters import CommandObject
-from aiogram.fsm.context import FSMContext
-from aiogram.filters import Command, CommandObject, StateFilter
+from aiogram import F, Router, types
+from aiogram.filters import Command
 
 from bot_app.modules import messages
 

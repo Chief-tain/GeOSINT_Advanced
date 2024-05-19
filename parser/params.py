@@ -17,30 +17,3 @@ RU_CHANNELS = [
     'https://t.me/xydessa',
     'https://t.me/vanek_nikolaev'
     ]
-
-UA_CHANNELS = [
-    'https://t.me/huyovy_kharkiv',
-    'https://t.me/suspilnepoltava',
-    'https://t.me/The3rdForceUA',
-    'https://t.me/meta_ukr',
-    'https://t.me/nashaniva',
-    'https://t.me/odesalivetv',
-    'https://t.me/hyevuy_dnepr',
-    'https://t.me/truexakharkiv',
-    'https://t.me/sumitruexa',
-    'https://t.me/truexanikolaev',
-    'https://t.me/dnipro_now',
-    'https://t.me/operativnoZSU',
-    'https://t.me/vn20minut',
-    'https://t.me/rivne_1283',
-    'https://t.me/irpininlife',
-    'https://t.me/suspilnechernihiv',
-    'https://t.me/spravdi',
-    'https://t.me/ukrnastup',
-    'https://t.me/suspilnemykolaiv',
-    'https://t.me/a_shtirlitz',
-    'https://t.me/pandoras_box_ua',
-    'https://t.me/mykolaivskaODA',
-    'https://t.me/zsuwar',
-    'https://t.me/UkrzalInfo'
-    ]

@@ -1,12 +1,8 @@
-import asyncio
-import sqlalchemy
 from sqlalchemy import desc, func, select, update, text, between
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from shared.dbs.postgresql import async_session
 from shared.models import RuTgData
-
-import logging
 
 
 class QueryTool:

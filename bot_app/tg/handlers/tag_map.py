@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from aiogram import F, Router, types, Bot
 from aiogram.filters import Command
@@ -6,7 +6,6 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery, BufferedInputFile
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from aiogram3_calendar import DialogCalendar, dialog_cal_callback
 
 from bot_app.modules import messages
@@ -15,8 +14,6 @@ from bot_app.application.query_tool import QueryTool
 from bot_app.application.builder import Builder
 from bot_app.application.converter import change_data_format
 from shared import settings
-
-import logging
 
 
 bot = Bot(

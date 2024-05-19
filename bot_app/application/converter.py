@@ -1,5 +1,3 @@
-
-
 def change_data_format(dataset):
     
     converted_dataset = []

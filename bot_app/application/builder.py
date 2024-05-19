@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+import logging
 
 import pymorphy3
 from gensim.models import Word2Vec
@@ -8,12 +8,10 @@ from bot_app.application.map_creation import MapCreation
 from bot_app.application.dedup import deduplication, deduplication_plus, fuzzy_cleaning
 from bot_app.application.report_creation import build_report
 
-import logging
-
 class Builder:
     def __init__(self) -> None:
 
-        with open("ua-cities.json", encoding="utf-8") as file:
+        with open("coords/ua-cities.json", encoding="utf-8") as file:
             self.data = json.load(file)
 
         self.city_list = []
@@ -46,7 +44,8 @@ class Builder:
         self,
         sender: str,
         message_id: int
-        ):
+        ) -> str:
+        
         return f'<a href={sender}/{message_id} target="_blank">{sender}/{message_id}</a>'
     
     def map_creation(
@@ -59,6 +58,9 @@ class Builder:
         for index in range(len(dataset)):
 
             tokens = dataset[index]['TOKENS']
+            
+            if len(tokens) >= 100:
+                continue
 
             for key in self.cities_dict:
                 # if key in tokens and not any(self.stop_list) in tokens:
@@ -154,7 +156,7 @@ class Builder:
     #     final_answer = "\n".join(cleaned_answer)
     #     self.summary = (await GPT().chat_complete(final_answer, channels))
     #     self.summary = self.summary.replace('.', '\.').replace('_', '\_').replace('-', '\-').replace(')', '\)').replace('(', '\(').replace('!', '\!')
-    #     # print(self.summary)
+    #     print(self.summary)
 
     def tag_map_creation(
         self,
@@ -177,6 +179,9 @@ class Builder:
         for index in range(len(dataset)):
 
             tokens = dataset[index]['TOKENS']
+            
+            if len(tokens) >= 100:
+                continue
 
             for current_tag in self.all_tags:
                 for key in self.cities_dict:
@@ -256,7 +261,7 @@ class Builder:
 
     def report_creation(
         self,
-        dataset,
+        dataset: list,
         start_date: str,
         end_date: str
         ):
@@ -267,11 +272,14 @@ class Builder:
 
         for index in range(len(dataset)):
 
-            adv_text = dataset[index]['TOKENS']
+            tokens = dataset[index]['TOKENS']
+            
+            if len(tokens) >= 100:
+                continue
 
             for key in cities_dict:
                 
-                if key in adv_text:
+                if key in tokens:
 
                     link = self.link_building(dataset[index]['SENDER'], dataset[index]['MESSAGE_ID'])
                     message_and_link = [dataset[index]['TEXT'], link]

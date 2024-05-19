@@ -13,7 +13,7 @@ class Preprocessing:
         self.stop_words = stopwords.words('russian')
         self.morph = pymorphy3.MorphAnalyzer()
 
-    def preprocess(self, text):
+    def preprocess(self, text: str):
         text = "".join([ch for ch in text if ch not in self.spec_chars])
         text = re.sub('\n', '     ', text)
         tokens = nltk.word_tokenize(text)

@@ -1,17 +1,14 @@
 import asyncio
 import logging
 
-import aiogram.exceptions
 from aiogram import Bot, Dispatcher
-from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 from aiogram.utils.i18n import I18n
 from aiogram.enums import ParseMode
-from aiogram.utils.i18n.middleware import FSMI18nMiddleware
 
 from bot_app.tg import routers
 from bot_app.modules.commands import set_bot_commands
-
 from shared import settings
+
 logging.getLogger().setLevel(logging.INFO)
 
 

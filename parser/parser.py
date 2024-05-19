@@ -1,15 +1,14 @@
 import time
 import asyncio
 import logging
+
 from telethon.sync import TelegramClient
 
 from db_interaction import DataBaseInteraction
 from preprocessing import Preprocessing
-
 from shared import settings
-from params import RU_CHANNELS, UA_CHANNELS
+from params import RU_CHANNELS
 
-import logging
 logging.getLogger().setLevel(logging.INFO)
 
 

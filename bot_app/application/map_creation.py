@@ -1,10 +1,9 @@
+from io import BytesIO
+
 import folium, json, os
 from folium import plugins
 from folium import FeatureGroup
 from folium.plugins import MarkerCluster
-
-from io import BytesIO
-import logging
 
 class MapCreation:
     def __init__(
@@ -15,7 +14,7 @@ class MapCreation:
         marker: bool = False
         ) -> None:
 
-        with open("ua-cities.json", encoding="utf-8") as f:
+        with open("coords/ua-cities.json", encoding="utf-8") as f:
             d = json.load(f)
 
         self.city_list = []
