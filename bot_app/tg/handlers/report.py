@@ -25,10 +25,10 @@ bot = Bot(
 
 query_tool = QueryTool()
 builder = Builder()
-map_router = Router()
+report_router = Router()
 
 
-@map_router.callback_query(dialog_cal_callback.filter(), MapState.map)
+@report_router.callback_query(dialog_cal_callback.filter(), MapState.report)
 async def process_dialog_calendar(
     callback_query: CallbackQuery,
     callback_data: CallbackData,
@@ -45,27 +45,27 @@ async def process_dialog_calendar(
         if 'start' not in state_data:
             state_data['start'] = selected_date_str
             await state.set_data(state_data)
-            await start_map(callback_query.message, state)
+            await start_report(callback_query.message, state)
         else:
             state_data['end'] = selected_date_str
             await state.set_data(state_data)
-            await end_map(callback_query.message, state)
+            await end_report(callback_query.message, state)
             
 
-@map_router.message(Command(commands=['map']))
-async def map(
+@report_router.message(Command(commands=['report']))
+async def report(
     message: types.Message,
     state: FSMContext
 ):
-    await message.answer(messages.CHANGE_MODE_MESSAGE.format('интерактивной карты'))
+    await message.answer(messages.CHANGE_MODE_MESSAGE.format('информационно\-отчетного документа'))
     await message.answer(
         messages.DATE_INPUT_MESSAGE,
         reply_markup=await DialogCalendar().start_calendar()
     )
-    await state.set_state(MapState.map)
+    await state.set_state(MapState.report)
 
 
-async def start_map(
+async def start_report(
     message: types.Message,
     state: FSMContext
 ):
@@ -77,7 +77,7 @@ async def start_map(
     )
     
     
-async def end_map(
+async def end_report(
     message: types.Message,
     state: FSMContext
 ):
@@ -89,16 +89,20 @@ async def end_map(
         end_date=datetime.strptime(state_data['end'], '%Y-%m-%d').timestamp()
     )
     
-    start_map, total_points = builder.map_creation(change_data_format(data))
+    report_file, total_points = builder.report_creation(
+        dataset=change_data_format(data),
+        start_date=state_data['start'],
+        end_date=state_data['end']
+        )
 
     await bot.send_document(
         chat_id=message.chat.id,
         document=BufferedInputFile(
-            file=start_map.getvalue(),
-            filename='map.html',
+            file=report_file.getvalue(),
+            filename='report.docx',
             ),
-        caption=messages.MAP_CAPTION.format(
-            'интерактивная карта',
+         caption=messages.MAP_CAPTION.format(
+            'информационно\-отчетного документ',
             state_data['start'].replace('-', '\-'),
             state_data['end'].replace('-', '\-'),
             total_points       

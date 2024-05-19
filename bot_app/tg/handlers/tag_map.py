@@ -82,6 +82,7 @@ async def start_tag_map(
     message: types.Message,
     state: FSMContext
 ):
+    await message.delete()
     await bot.send_message(
         chat_id=message.chat.id,
         text=messages.DATE_INPUT_MESSAGE,
@@ -93,6 +94,7 @@ async def end_tag_map(
     message: types.Message,
     state: FSMContext
 ):
+    await message.delete()
     state_data = await state.get_data()
         
     data = await query_tool.get_data_by_dates(
@@ -112,7 +114,7 @@ async def end_tag_map(
         )
     )
 
-    await bot.send_media_group(
+    await bot.send_document(
         chat_id=message.chat.id,
         document=BufferedInputFile(
             file=start_map.getvalue(),

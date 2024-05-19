@@ -1,4 +1,5 @@
 import os
+from io import BytesIO
 from datetime import datetime
 from docx import Document
 from docx.shared import Pt
@@ -8,10 +9,8 @@ from docx.shared import Mm
 import docx
 from docx.enum.dml import MSO_THEME_COLOR_INDEX
 
-def build_report(filtered_reports_dict, begin, end, uniq, username):
+def build_report(filtered_reports_dict, start_date, end_date, uniq, total_points):
 
-        begin_report = datetime.utcfromtimestamp(begin + 86400).strftime('%Y-%m-%d')
-        end_report = datetime.utcfromtimestamp(end + 86400).strftime('%Y-%m-%d')
         document = Document()
 
         style = document.styles['Normal']
@@ -23,7 +22,7 @@ def build_report(filtered_reports_dict, begin, end, uniq, username):
         section.bottom_margin = Mm(10)
         section.header_distance = Mm(10)
         section.footer_distance = Mm(10)
-        head = document.add_heading('Отчет по оперативной обстановке\n {} - {}\n Уникальность информации - {}%'.format(str(begin_report), str(end_report), str(uniq)))
+        head = document.add_heading('Отчет по оперативной обстановке\n {} - {}\n Уникальность информации - {}%'.format(start_date, end_date, uniq))
         head.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
         for key in filtered_reports_dict:
@@ -40,12 +39,10 @@ def build_report(filtered_reports_dict, begin, end, uniq, username):
                     fmt0 = par0.paragraph_format
                     fmt0.first_line_indent = Mm(15)
 
-        if not os.path.isdir(f'output\{username}'):
-            os.mkdir(f'output\{username}')
-
-        report_name = f'output\{username}\\report_{username}.docx'
-
-        document.save(report_name)
+        target_stream = BytesIO()
+        document.save(target_stream)
+        
+        return target_stream, total_points
 
 def build_tag_report(answer, begin, end, tag, username):
 

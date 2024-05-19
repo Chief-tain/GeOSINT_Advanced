@@ -11,6 +11,8 @@ numpy==1.26.4
 
 gensim==4.3.1
 scipy==1.10.1
-pymorphy3==2.0.1  
+pymorphy3==2.0.1
+
+python-docx==0.8.11
 
 -r ../shared/requirements.txt

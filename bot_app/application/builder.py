@@ -5,7 +5,8 @@ import pymorphy3
 from gensim.models import Word2Vec
 
 from bot_app.application.map_creation import MapCreation
-from bot_app.application.dedup import deduplication, deduplication_plus
+from bot_app.application.dedup import deduplication, deduplication_plus, fuzzy_cleaning
+from bot_app.application.report_creation import build_report
 
 import logging
 
@@ -253,30 +254,29 @@ class Builder:
     #     # if not self.result:
     #     #     raise ValueError
 
-    # def report_creation(self, begin, end, channels, username):
+    def report_creation(
+        self,
+        dataset,
+        start_date: str,
+        end_date: str
+        ):
+        
+        self.dict_cleaning()
+        cities_dict = self.cities_dict
+        reports_dict = self.reports_dict
 
-    #     begin, end = self.data_building(begin, end)
-    #     dataset = self.database.read_db(begin, end, channels)
+        for index in range(len(dataset)):
 
-    #     if channels == 'ru':
-    #         cities_dict = self.cities_dict
-    #         reports_dict = self.reports_dict
-    #     if channels == 'ua':
-    #         cities_dict = self.cities_dict_ua
-    #         reports_dict = self.reports_dict_ua
+            adv_text = dataset[index]['TOKENS']
 
-    #     for index in range(len(dataset)):
+            for key in cities_dict:
+                
+                if key in adv_text:
 
-    #         adv_text = json.loads(dataset[index]['ADV_MESSAGE'])
+                    link = self.link_building(dataset[index]['SENDER'], dataset[index]['MESSAGE_ID'])
+                    message_and_link = [dataset[index]['TEXT'], link]
+                    cities_dict[str(key)].append(message_and_link)
+                    reports_dict[str(key)].append(str(dataset[index]['TEXT']))
 
-    #         for key in cities_dict:
-
-    #             if key in adv_text and 'сводка' not in adv_text and 'обстановка' not in adv_text and 'направление' not in adv_text:
-
-    #                 link = self.link_building(dataset[index]['SENDER'], dataset[index]['MESSAGE_ID'])
-    #                 message_and_link = [dataset[index]['MESSAGE'], link]
-    #                 cities_dict[str(key)].append(message_and_link)
-    #                 reports_dict[str(key)].append(str(dataset[index]['MESSAGE']))
-
-    #     cleaned_report_dict, self.total_points = fuzzy_cleaning(reports_dict, 60)
-    #     build_report(cleaned_report_dict, begin, end, 60, username)
+        cleaned_report_dict, self.total_points = fuzzy_cleaning(reports_dict, 60)
+        return build_report(cleaned_report_dict, start_date, end_date, 60, self.total_points)
