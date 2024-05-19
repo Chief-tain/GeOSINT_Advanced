@@ -1,0 +1,81 @@
+version: '3.8'
+
+
+services:
+  db:
+    image: "postgres:15"
+    env_file:
+      - .env.dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - app
+
+  alembic:
+    build:
+      context: .
+      dockerfile: alembic/Dockerfile
+    env_file:
+      - .env.dev
+    depends_on:
+      [db]
+    command: alembic upgrade heads
+    profiles:
+      - deploy
+    restart: on-failure
+    networks:
+      - app
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    env_file:
+      - .env.dev
+    ports:
+      - "8081:80"
+    depends_on:
+      [db]
+    volumes:
+      - ./pgadmin_servers.json:/pgadmin4/servers.json
+      - pgadmin_sessions:/var/lib/pgadmin
+      - pgadmin_data:/pgadmin
+    networks:
+      - app
+
+  bot_app:
+    build:
+      context: .
+      dockerfile: bot_app/Dockerfile
+    env_file:
+      - .env.dev
+    command: python3 /app/bot_app/bot.py
+    restart: unless-stopped
+    networks:
+      - app
+
+  parser:
+    build:
+      context: .
+      dockerfile: parser/Dockerfile
+    env_file:
+      - .env.dev
+    depends_on:
+      [db]
+    command: python3 /app/parser/parser.py
+    restart: unless-stopped
+    networks:
+      - app
+
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  pgadmin_sessions:
+
+
+networks:
+  app:
+    name: app

@@ -1,0 +1,16 @@
+aiogram[i18n]==3.3.0
+aiogram3-calendar==0.1.2
+
+folium==0.16.0
+
+thefuzz==0.20.0
+Levenshtein==0.21.1
+
+scikit-learn==1.4.0
+numpy==1.26.4
+
+gensim==4.3.1
+scipy==1.10.1
+pymorphy3==2.0.1  
+
+-r ../shared/requirements.txt
