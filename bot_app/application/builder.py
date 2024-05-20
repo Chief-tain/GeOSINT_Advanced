@@ -5,8 +5,10 @@ import pymorphy3
 from gensim.models import Word2Vec
 
 from bot_app.application.map_creation import MapCreation
-from bot_app.application.dedup import deduplication, deduplication_plus, fuzzy_cleaning
+from bot_app.application.dedup import deduplication, fuzzy_cleaning
 from bot_app.application.report_creation import build_report
+from bot_app.application.gpt import GPT
+from shared import settings
 
 class Builder:
     def __init__(self) -> None:
@@ -72,91 +74,28 @@ class Builder:
         cleaned_dict, self.total_points = deduplication(self.cities_dict, 60)
         
         return MapCreation().map_creation(cleaned_dict)
+    
 
-    # def cities_map_creation(self, begin, end, cities_list, channels, username):
-    #     cities_list = cities_list.split('\n')
-    #     cities_list = [element.strip() for element in cities_list]
-    #     processed_cities_list = []
-    #     for full_name in regions_dict.keys():
-    #         for region_name in cities_list:
-    #             if region_name in full_name:
-    #                 processed_cities_list.append(full_name)
-    #     translated_cities_list = [regions_dict[element] if element in regions_dict else element for element in processed_cities_list]
-    #     filter_cities_dict = dict()
-
-    #     if channels == 'ru':
-    #         cities_dict = self.cities_dict
-
-    #         for region in self.data[0]['regions']:
-    #             if region['name'] in processed_cities_list:
-    #                 for element in region['cities']:
-    #                     filter_cities_dict[element['name'].lower()] = []
-            
-    #         for city_name in processed_cities_list:
-    #             filter_cities_dict[city_name.lower()] = []
-
-    #     if channels == 'ua':
-    #         cities_dict = self.cities_dict_ua
-
-    #         for region in self.data_ua[0]['regions']:
-    #             if region['name'] in translated_cities_list:
-    #                 for element in region['cities']:
-    #                     filter_cities_dict[element['name'].lower()] = []
-            
-    #         for city_name in translated_cities_list:
-    #             filter_cities_dict[city_name.lower()] = []
-
-    #     begin, end = self.data_building(begin, end)
-    #     dataset = self.database.read_db(begin, end, channels)
-
-    #     for index in range(len(dataset)):
-
-    #         adv_text = json.loads(dataset[index]['ADV_MESSAGE'])
-
-    #         for key in filter_cities_dict:
-
-    #             if key in adv_text and 'сводка' not in adv_text and 'обстановка' not in adv_text \
-    #                 and 'направление' not in adv_text and 'хроника' not in adv_text:
-                    
-    #                 link = self.link_building(dataset[index]['SENDER'], dataset[index]['MESSAGE_ID'])
-    #                 message_and_link = [dataset[index]['MESSAGE'], link]
-    #                 cities_dict[str(key)].append(message_and_link)
-
-    #     cleaned_dict, self.total_points = fuzzy_cleaning_plus(cities_dict, 60)
-    #     self.map.map_creation(channels, cleaned_dict, username, region=True)
-
-    # async def city_summary_creation(self, begin, end, city_name, channels, username):
-
-    #     if channels == 'ua':
-    #         city_name = self.translator.translate(city_name, dest='uk').text.lower()
-    #         if city_name not in self.city_list_ua:
-    #             raise KeyError
-            
-    #     if channels == 'ru':
-    #         if city_name.lower() not in self.city_list:
-    #             raise KeyError
+    async def city_summary_creation(
+        self,
+        dataset: list,
+        city_name: str
+        ):
         
-    #     begin, end = self.data_building(begin, end, days=3)
-    #     dataset = self.database.read_db(begin, end, channels)
-    #     answer = []
+        answer = []
 
-    #     for index in range(len(dataset)):
+        for index in range(len(dataset)):
+            tokens = dataset[index]['TOKENS']
+            
+            if len(tokens) >= 100:
+                continue
 
-    #         adv_text = json.loads(dataset[index]['ADV_MESSAGE'])
+            if city_name.lower() in tokens:
+                answer.append(dataset[index]['TEXT'])
 
-    #         if city_name.lower() in adv_text and 'сводка' not in adv_text and 'обстановка' not in adv_text \
-    #             and 'направление' not in adv_text and 'хроника' not in adv_text:
-    #             answer.append(dataset[index]['MESSAGE'])
-
-    #     cleaned_answer, self.total_points, self.row_amount, self.cleaned_amount = list_fuzzy_cleaning(answer, 60)
-
-    #     if self.cleaned_amount < 2:
-    #         raise ArithmeticError
-        
-    #     final_answer = "\n".join(cleaned_answer)
-    #     self.summary = (await GPT().chat_complete(final_answer, channels))
-    #     self.summary = self.summary.replace('.', '\.').replace('_', '\_').replace('-', '\-').replace(')', '\)').replace('(', '\(').replace('!', '\!')
-    #     print(self.summary)
+        response = (await GPT().process_chat_completions(promt_styling=settings.PROMPT.format(city_name=city_name, news_articles=answer))).choices[0].message.content
+        response = response.replace('.', '\.').replace('_', '\_').replace('-', '\-').replace(')', '\)').replace('(', '\(').replace('!', '\!')
+        return response
 
     def tag_map_creation(
         self,
@@ -165,6 +104,7 @@ class Builder:
         ):
 
         self.dict_cleaning()
+        
         tag_dict = self.tag_dict
         try:
             tag_word = self.morph.parse(tag_word)[0].normal_form
@@ -190,74 +130,9 @@ class Builder:
                         message_text = dataset[index]['TEXT']
                         tag_dict[str(key)].append([message_text, link])
         
-        cleaned_tag_dict, self.total_tag_points = deduplication_plus(tag_dict, 60)
+        cleaned_tag_dict, self.total_tag_points = deduplication(tag_dict, 60)
         return MapCreation().tag_map_creation(cleaned_tag_dict, self.all_tags)
 
-    # def tag_list_creation(self, begin, end, tag_word, channels, username):
-
-    #     begin, end = self.data_building(begin, end)
-    #     dataset = self.database.read_db(begin, end, channels)
-
-    #     if channels == 'ru':
-    #         tag_dict = self.tag_dict
-    #         try:
-    #             tag_word = self.morph.parse(tag_word)[0].normal_form
-    #             self.all_tags = [el[0] for el in self.model.wv.most_similar(tag_word)[:7]]
-    #         except:
-    #             self.all_tags = []
-    #         self.all_tags.append(tag_word)
-
-    #     if channels == 'ua':
-    #         tag_dict = self.tag_dict_ua
-    #         try:
-    #             tag_word = self.morph.parse(tag_word)[0].normal_form
-    #             self.all_tags = [self.translator.translate(el[0], dest='uk').text for el in self.model.wv.most_similar(tag_word)[:7]]
-    #         except:
-    #             self.all_tags = []
-    #         self.all_tags.append(self.translator.translate(tag_word, dest='uk').text)
-
-    #     tag_dict['другие'] = []
-    #     link_collector = []
-
-    #     for index in range(len(dataset)):
-
-    #         adv_text = json.loads(dataset[index]['ADV_MESSAGE'])
-
-    #         for current_tag in self.all_tags:
-                
-    #             for key in tag_dict:
-    #                 if key in adv_text and 'сводка' not in adv_text and 'обстановка' not in adv_text \
-    #                     and 'направление' not in adv_text and 'хроника' not in adv_text and current_tag in adv_text:
-    #                     link = str(dataset[index]['SENDER']) + '/' + str(dataset[index]['MESSAGE_ID'])
-    #                     tag_dict[str(key)].append((link, current_tag, dataset[index]['DATE']))
-    #                     link_collector.append(link)
-
-    #             if 'сводка' not in adv_text and 'обстановка' not in adv_text \
-    #                 and 'направление' not in adv_text and 'хроника' not in adv_text and current_tag in adv_text:
-    #                 link = str(dataset[index]['SENDER']) + '/' + str(dataset[index]['MESSAGE_ID'])
-    #                 if link not in link_collector:
-    #                     tag_dict['другие'].append((link, current_tag, dataset[index]['DATE']))
-
-    #     self.answer = {}           
-    #     for key, value in tag_dict.items():
-    #         if value:
-    #             self.answer[key] = value
-
-    #     self.total_length = sum(map(len, self.answer.values()))
-    #     build_tag_report(self.answer, begin, end, tag_word, username)
-
-    #     # self.result = ''
-
-    #     # for key, value in self.answer.items():
-    #     #     self.result += markdown.bold("🌏 Населенный пункт: ") + f'{key.capitalize()}\n' 
-    #     #     for element in value:
-    #     #         self.result += element[0].replace('.', '\.').replace('_', '\_')
-    #     #         self.result += ' \- '
-    #     #         self.result += element[1]
-    #     #         self.result += '\n'
-
-    #     # if not self.result:
-    #     #     raise ValueError
 
     def report_creation(
         self,

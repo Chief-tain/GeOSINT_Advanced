@@ -29,3 +29,8 @@ PARSER_TG_NAME = env('PARSER_TG_NAME', default='')
 PARSER_API_ID = env('PARSER_API_ID', default='')
 PARSER_API_HASH = env('PARSER_API_HASH', default='')
 
+#gpt
+GPT_MODEL=env('GPT_MODEL', default='gpt-4o-2024-05-13')
+GPT_API_KEY=env('GPT_API_KEY', default='')
+PROMPT='Нужно составить краткую сводку по событиям в {city_name} на основе информации из новостных статей: {news_articles}'
+
