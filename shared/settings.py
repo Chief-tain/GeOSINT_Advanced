@@ -33,4 +33,5 @@ PARSER_API_HASH = env('PARSER_API_HASH', default='')
 GPT_MODEL=env('GPT_MODEL', default='gpt-4o-2024-05-13')
 GPT_API_KEY=env('GPT_API_KEY', default='')
 PROMPT='Нужно составить краткую сводку по событиям в {city_name} на основе информации из новостных статей: {news_articles}'
+TOTAL_PROMPT='Нужно составить краткую сводку по событиям на основе информации из новостных статей: {news_articles}. Напиши не более 3000 печатных символов.'
 

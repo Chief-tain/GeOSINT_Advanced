@@ -6,3 +6,4 @@ class MapState(StatesGroup):
     tag_map = State()
     report = State()
     summary = State()
+    total_summary = State()

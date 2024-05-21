@@ -10,6 +10,7 @@ async def set_bot_commands(bot: Bot):
                 BotCommand(command='help', description="Описание режимов работы"),
                 BotCommand(command='map', description="Режим создания карты"),
                 BotCommand(command='tag_map', description="Режим создания карты по тегам"),
+                BotCommand(command='total_summary', description="Режим создания общей информационно-новостной сводки"),
                 BotCommand(command='city_summary', description="Режим создания краткой новостной сводки по населенному пункту"),
                 BotCommand(command='report', description="Режим создания информационно-отчетного документа")
             ],

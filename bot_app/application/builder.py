@@ -96,6 +96,25 @@ class Builder:
         response = (await GPT().process_chat_completions(promt_styling=settings.PROMPT.format(city_name=city_name, news_articles=answer))).choices[0].message.content
         response = response.replace('.', '\.').replace('_', '\_').replace('-', '\-').replace(')', '\)').replace('(', '\(').replace('!', '\!')
         return response
+    
+    async def total_summary_creation(
+        self,
+        dataset: list,
+        ):
+        
+        answer = []
+
+        for index in range(len(dataset)):
+            tokens = dataset[index]['TOKENS']
+            
+            if len(tokens) >= 100:
+                continue
+
+            answer.append(dataset[index]['TEXT'])
+
+        response = (await GPT().process_chat_completions(promt_styling=settings.TOTAL_PROMPT.format(news_articles=answer))).choices[0].message.content
+        response = response.replace('.', '\.').replace('_', '\_').replace('-', '\-').replace(')', '\)').replace('(', '\(').replace('!', '\!')
+        return response
 
     def tag_map_creation(
         self,
@@ -163,3 +182,4 @@ class Builder:
 
         cleaned_report_dict, self.total_points = fuzzy_cleaning(reports_dict, 60)
         return build_report(cleaned_report_dict, start_date, end_date, 60, self.total_points)
+    
