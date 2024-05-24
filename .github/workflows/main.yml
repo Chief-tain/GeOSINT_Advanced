@@ -1,0 +1,40 @@
+name: CD Pipeline for main
+
+on:
+  push:
+    branches:
+      - main
+  
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+
+    - name: Add server to known hosts
+      run: ssh-keyscan ${{ secrets.SERVER_ADDRESS }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to server
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+        SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
+        PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+      run: |
+        ssh $SERVER_USERNAME@$SERVER_ADDRESS "
+          if [ ! -d $PROJECT_PATH ]; then
+            git clone https://$GITHUB_TOKEN:x-oauth-basic@github.com/GeOSINT_Advanced/GeOSINT_Advanced.git $PROJECT_PATH;
+          fi
+          cd $PROJECT_PATH;
+          git pull;
+          docker compose down -t 60;
+          for i in \$(seq 5); do
+            docker compose --env-file .env.dev --profile deploy up --build -d
+          done"
