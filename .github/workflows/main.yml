@@ -28,6 +28,7 @@ jobs:
         SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
         PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
       run: |
+        echo $SERVER_USERNAME@$SERVER_ADDRESS &&
         ssh $SERVER_USERNAME@$SERVER_ADDRESS "
           if [ ! -d $PROJECT_PATH ]; then
             git clone https://$GITHUB_TOKEN:x-oauth-basic@github.com/GeOSINT_Advanced/GeOSINT_Advanced.git $PROJECT_PATH;
