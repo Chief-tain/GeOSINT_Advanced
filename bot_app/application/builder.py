@@ -11,9 +11,13 @@ from bot_app.application.gpt import GPT
 from shared import settings
 
 class Builder:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        coords_path: str = 'coords/ua-cities.json',
+        model_path: str = 'models/word2vec_300_100.model'
+        ) -> None:
 
-        with open("coords/ua-cities.json", encoding="utf-8") as file:
+        with open(coords_path, encoding="utf-8") as file:
             self.data = json.load(file)
 
         self.city_list = []
@@ -27,7 +31,7 @@ class Builder:
                 self.city_lat.append(item['lng'].lower())
                 
         self.stop_list = ('сводка', 'обстановка', 'направление', 'хроника')
-        self.model = Word2Vec.load("models/word2vec_300_100.model")
+        self.model = Word2Vec.load(model_path)
         self.morph = pymorphy3.MorphAnalyzer()
                 
     def dict_cleaning(self):
@@ -65,7 +69,6 @@ class Builder:
                 continue
 
             for key in self.cities_dict:
-                # if key in tokens and not any(self.stop_list) in tokens:
                 if key in tokens:
                     message_and_link = [dataset[index]['TEXT'], self.link_building(dataset[index]['SENDER'], dataset[index]['MESSAGE_ID'])]
                     self.cities_dict[str(key)].append(message_and_link)

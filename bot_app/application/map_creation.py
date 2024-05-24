@@ -11,10 +11,11 @@ class MapCreation:
         width: int = 1300,
         height: int = 800,
         location: list[float] = [49.05, 30.60],
-        marker: bool = False
+        marker: bool = False,
+        coords_path: str = 'coords/ua-cities.json',
         ) -> None:
 
-        with open("coords/ua-cities.json", encoding="utf-8") as f:
+        with open(coords_path, encoding="utf-8") as f:
             d = json.load(f)
 
         self.city_list = []
@@ -34,7 +35,8 @@ class MapCreation:
             tiles='openstreetmap',
             zoom_start=6,
             min_zoom=1,
-            max_zoom=14)
+            max_zoom=14
+            )
 
         plugins.Geocoder().add_to(self.map)
 
@@ -51,21 +53,25 @@ class MapCreation:
 
         plugins.Fullscreen().add_to(self.map)
 
+        plugins.MeasureControl(
+            position='topright',
+            primary_length_unit='meters',
+            secondary_length_unit='miles',
+            primary_area_unit='sqmeters',
+            secondary_area_unit='acres'
+            ).add_to(self.map)
+        
+        folium.TileLayer('openstreetmap').add_to(self.map)
+        plugins.Draw().add_to(self.map)
+        
         # plugins.LocateControl().add_to(map)
-
-        plugins.MeasureControl(position='topright',
-                               primary_length_unit='meters',
-                               secondary_length_unit='miles',
-                               primary_area_unit='sqmeters',
-                               secondary_area_unit='acres').add_to(self.map)
 
         # folium.TileLayer('Stamen Toner').add_to(self.map)
         # folium.TileLayer('Stamen Terrain').add_to(self.map)
         # folium.TileLayer('Stamen Watercolor').add_to(self.map)
         # folium.TileLayer('cartodbpositron').add_to(self.map)
         # folium.TileLayer('cartodbdark_matter').add_to(self.map)
-        folium.TileLayer('openstreetmap').add_to(self.map)
-
+        
         # folium.TileLayer(
         #     tiles='https://tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',
         #     attr='OpenRailwayMap',
@@ -79,14 +85,11 @@ class MapCreation:
         #     overlay=False,
         #     control=True
         # ).add_to(self.map)
-
-        plugins.Draw().add_to(self.map)
         
         if marker:
             marker_points = FeatureGroup(name='All markers').add_to(self.map)
             folium.Marker(location=location, icon=folium.Icon(icon="info-sign")).add_to(marker_points)
             
-
     def map_creation(
         self,
         filtered_cities_dict: dict
@@ -127,7 +130,11 @@ class MapCreation:
             
             return buffer, total_points
 
-    def tag_map_creation(self, filtered_tag_dict, tag_words):
+    def tag_map_creation(
+        self,
+        filtered_tag_dict: dict,
+        tag_words: list[str]
+        ):
         
         city_list = self.city_list
         total_points = 0
