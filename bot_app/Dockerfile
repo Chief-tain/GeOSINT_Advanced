@@ -8,8 +8,8 @@ RUN apt remove -y git && apt autoremove -y
 
 FROM bot_base
 
-COPY ../bot_app /app/bot_app
-COPY ../shared /app/shared
+COPY bot_app /app/bot_app
+COPY shared /app/shared
 
 WORKDIR /app/bot_app
 ENV PYTHONPATH "${PYTHONPATH}:/app"

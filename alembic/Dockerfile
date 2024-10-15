@@ -8,9 +8,9 @@ RUN pip install -r /app/shared/requirements.txt
 RUN apt remove -y git && apt autoremove -y
 
 FROM alembic_base
-COPY ../shared /app/shared
-COPY ../alembic /app/alembic
-COPY ../alembic.ini /app
+COPY shared /app/shared
+COPY alembic /app/alembic
+COPY alembic.ini /app
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 

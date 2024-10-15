@@ -9,8 +9,8 @@ RUN python -m nltk.downloader stopwords
 
 FROM parser
 
-COPY ../parser /app/parser
-COPY ../shared /app/shared
+COPY parser /app/parser
+COPY shared /app/shared
 
 WORKDIR /app/parser
 ENV PYTHONPATH "${PYTHONPATH}:/app"
